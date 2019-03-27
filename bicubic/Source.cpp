@@ -51,21 +51,6 @@ void GetAllFiles(string path, vector<string>& files)
 
 }
 
-void getImages(string path, vector<string>& imagesList)
-{
-	intptr_t hFile = 0;
-	struct _finddata_t fileinfo;
-	string p;
-
-	hFile = _findfirst(p.assign(path).append("\\*.jpg").c_str(), &fileinfo);
-
-	if (hFile != -1) {
-		do {
-			imagesList.push_back(path+fileinfo.name);//保存类名
-		} while (_findnext(hFile, &fileinfo) == 0);
-	}
-}
-
 //获取特定格式的文件名
 void GetAllFormatFiles(string path, vector<string>& files, string format)
 {
@@ -136,21 +121,49 @@ int string_replase(string &s1, const string &s2, const string &s3)
 	return 0;
 }
 
+void getImages(string path, vector<string>& imagesList)
+{
+	intptr_t hFile = 0;
+	struct _finddata_t fileinfo;
+	string p;
+
+	hFile = _findfirst(p.assign(path).append("\\*.png").c_str(), &fileinfo);
+
+	if (hFile != -1) {
+		do {
+			imagesList.push_back(path + fileinfo.name);//保存类名
+		} while (_findnext(hFile, &fileinfo) == 0);
+	}
+}
 
 int main()
 {
-	string filePath = "c:\\vastai_projects\\dataset\\test1\\";
+	string filePath = "c:\\vastai_projects\\4kimage_d4\\";
 	vector<string> files;
 	char * distAll = "AllFiles.txt";
 
+
+	getImages(filePath, files);
+	cv::Mat src,dst;
+	string dstfn;
+	
+	for (int i = 0; i < files.size(); i++)
+	{
+		src = cv::imread(files.at(i));
+		cv::resize(src, dst, cv::Size(src.cols * 0.25, src.rows * 0.25), 0, 0, cv::INTER_CUBIC);
+		dstfn = files.at(i);
+		string_replase(dstfn, ".png", "_BICUBIC_d4.png");
+		cv::imwrite(dstfn,dst);
+
+		cv::imshow("src", src);
+		cv::waitKey(10);
+	}
+	return 0;
 	//读取所有的文件，包括子文件的文件
 	//GetAllFiles(filePath, files);
 
-	//读取所有格式为jpg的文件
-	string format = ".jpg";
 	//GetAllFiles(filePath, files);
-//	GetAllFormatFiles(filePath, files, format);
-	getImages(filePath, files);
+	//	GetAllFormatFiles(filePath, files, format);
 	//ofstream ofn(distAll);
 	//int size = files.size();
 	//ofn << size << endl;
@@ -160,24 +173,8 @@ int main()
 	//	cout << files[i] << endl;
 	//}
 	//ofn.close();
-	cv::Mat src,dst;
-	string dstfn;
-
-	string s2 = "###ip##";
-	string s1 = "http://123###ip##678.com";
-	string s3 = "192";
-	string_replase(s1, s2, s3);
-
-	for (int i = 0; i < files.size(); i++)
-	{
-		src = cv::imread(files.at(i));
-		cv::resize(src, dst, cv::Size(src.cols * 4, src.rows * 4), 0, 0, cv::INTER_CUBIC);
-		dstfn = files.at(i);
-		string_replase(dstfn, "HR", "HR_BICUBIC");
-		cv::imwrite(dstfn,dst);
-
-		cv::imshow("src", src);
-		cv::waitKey(1000);
-	}
-	return 0;
+	//string s2 = "###ip##";
+	//string s1 = "http://123###ip##678.com";
+	//string s3 = "192";
+	//string_replase(s1, s2, s3);
 }
